@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+	<head>
+		<title>CSS3 Animation Testing</title>
+		<style>
+			div.red {
+				width: 100px;
+				height: 100px;
+				background: red;
+			}
+
+			div.blue {
+				width: 200px;
+				height: 75px;
+				background: blue;
+			}
+		</style>
+
+
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="css3_animation.js"></script>
+		<script>
+			$(document).ready(function () {
+				var red = $('div.red');
+				var blue = $('div.blue');
+
+				red.transition({
+					width: 400,
+					height: 85
+				}, {
+					duration: 1000,
+					complete: function () {
+						blue.transition({
+							width: 150,
+							height: 200,
+							background: 'yellow'
+						}, {
+							delay: 1200
+						});
+					}
+				}).transition({
+					width: 100,
+					height: 500,
+					background: 'green'
+				}).transition({
+					opacity: 0
+				}).transition({
+					opacity: .75
+				});
+
+				setTimeout(function () {
+					red.transition({
+						width: 100,
+						height: 100,
+						background: 'red',
+						opacity: 1
+					}, { duration: 1000 });
+
+					blue.transition({
+						width: 100,
+						height: 200,
+						background: 'blue'
+					}, { duration: 400 });
+				}, 5000);
+			});
+		</script>
+	</head>
+
+	<body>
+		<div class='red'></div>
+		<div class='blue'></div>
+	</body>
+</html>
