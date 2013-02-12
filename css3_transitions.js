@@ -1,3 +1,5 @@
+// From https://github.com/benekastah/css3-transitions
+
 (function ($, undefined) {
 	
 	var supportsWebkitTransitionEnd = "onwebkittransitionend" in window;
@@ -98,11 +100,17 @@
 		options.easing = options.easing || el.css_transition('timing-function');
 		
 		// Fallback to jQuery animation if Mozernizr says so.
-		if (properties && typeof Modernizr !== "undefined" && !Modernizr.csstransitions) {
-			if (!(options.easing in $.easing)) {
-				options.easing = options.fallbackEasing;
+		var noCssTransitions;
+		if (typeof Modernizr !== "undefined" && !Modernizr.csstransitions) {
+			if (properties) {
+				if (!(options.easing in $.easing)) {
+					options.easing = options.fallbackEasing;
+				}
+				return el.animate(properties, options);
 			}
-			return el.animate(properties, options);
+			else {
+				noCssTransitions = true;
+			}
 		}
 		
 		var transition_data = el.data('transition');
@@ -119,7 +127,7 @@
 				var duration, delay;
 				duration = get_time(el.css_transition('duration'));
 				delay = get_time(el.css_transition('delay'));
-				if (duration === options.duration && delay === options.delay) {
+				if (noCssTransitions || (duration === options.duration && delay === options.delay)) {
 					clearInterval(interval);
 					clearTimeout(timeout);
 					if (properties) {
@@ -142,7 +150,7 @@
 					if (!supportsWebkitTransitionEnd) {
 						setTimeout(function () {
 							el.trigger('transitionEnd');
-						}, options.delay + options.duration);
+						}, noCssTransitions ? 0 : options.delay + options.duration);
 					}
 				}
 			});
