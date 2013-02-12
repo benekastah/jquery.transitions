@@ -100,7 +100,7 @@
 		options.duration = get_time(options.duration);
 		options.delay = get_time(options.delay);
 		
-		el.queue('transition', function (next) {
+		el.queue(function (next) {
 			transition_data.old_transition = transition_data.old_transition || el.css_transition();
 			el.css_transition(null, 'all ' + options.duration + 'ms ' + options.easing + ' ' + options.delay + 'ms');
 
@@ -123,9 +123,6 @@
 					el.one(transitionEndEvent, function () {
 						el.css_transition(null, transition_data.old_transition);
 						delete transition_data.old_transition;
-						if (!el.queue('transition').length) {
-							transition_data.dequeued = false;
-						}
 						next();
 					});
 
@@ -141,11 +138,6 @@
 				clearInterval(interval);
 			}, transitionTimeout);
 		});
-
-		if (!transition_data.dequeued) {
-			el.dequeue('transition');
-			transition_data.dequeued = true;
-		}
 
 		return this;
 	};
