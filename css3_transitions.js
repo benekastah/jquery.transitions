@@ -1,21 +1,6 @@
 (function ($, undefined) {
 	
-	var supportsWebkitTransitionEnd = false;
-	$(document).ready(function () {
-		var div = $("<div>");
-
-		div.transition({ width: 1 }, { duration: 1 });
-
-		// Find out if the webkitTransitionEnd event works.
-		div.on('webkitTransitionEnd', function () {
-			supportsWebkitTransitionEnd = true;
-		});
-
-		// After plenty of time for the transition to occur, remove div.
-		setTimeout(function () {
-			div.remove();
-		}, 5);
-	});
+	var supportsWebkitTransitionEnd = "onwebkittransitionend" in window;
 
 	var _keys = Object.keys || function (o) {
 		var keys = [];
