@@ -69,6 +69,7 @@
 	var default_options = {
 		duration: 400,
 		easing: 'ease',
+		fallbackEasing: 'swing',
 		delay: 0
 	};
 
@@ -90,15 +91,25 @@
 
 	$.fn.transition = function (properties, options) {
 		var el = this;
+		
+		options = $.extend({}, default_options, options);
+		options.duration = get_time(options.duration) || get_time(el.css_transition('duration'));
+		options.delay = get_time(options.delay) || get_time(el.css_transition('delay'));
+		options.easing = options.easing || el.css_transition('timing-function');
+		
+		// Fallback to jQuery animation if Mozernizr says so.
+		if (properties && typeof Modernizr !== "undefined" && !Modernizr.csstransitions) {
+			if (!(options.easing in $.easing)) {
+				options.easing = options.fallbackEasing;
+			}
+			return el.animate(properties, options);
+		}
+		
 		var transition_data = el.data('transition');
 		if (!transition_data) {
 			transition_data = {};
 			el.data('transition', transition_data);
 		}
-
-		options = $.extend({}, default_options, options);
-		options.duration = get_time(options.duration);
-		options.delay = get_time(options.delay);
 		
 		el.queue(function (next) {
 			transition_data.old_transition = transition_data.old_transition || el.css_transition();
@@ -108,19 +119,21 @@
 				var duration, delay;
 				duration = get_time(el.css_transition('duration'));
 				delay = get_time(el.css_transition('delay'));
-				if (
-					 duration === options.duration &&
-					 delay === options.delay
-				) {
+				if (duration === options.duration && delay === options.delay) {
 					clearInterval(interval);
 					clearTimeout(timeout);
-					el.css(properties);
+					if (properties) {
+						el.css(properties);
+					}
 
 					if (options.complete) {
 						el.one(transitionEndEvent, options.complete);
 					}
 
-					el.one(transitionEndEvent, function () {
+					el.one(transitionEndEvent, function (event) {
+						if (event.type !== "transitionEnd") {
+							el.trigger("transitionEnd");
+						}
 						el.css_transition(null, transition_data.old_transition);
 						delete transition_data.old_transition;
 						next();
