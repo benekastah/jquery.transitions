@@ -3,71 +3,72 @@
 	<head>
 		<title>CSS3 Animation Testing</title>
 		<style>
-			div.red {
+			div#spinner {
 				width: 100px;
-				height: 100px;
-				background: red;
-			}
-
-			div.blue {
-				width: 200px;
-				height: 75px;
+				height: 50px;
 				background: blue;
+				margin: 150px;
 			}
 		</style>
 
 
 		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-		<script src="css3_animation.js"></script>
+		<script src="jquery.transition.js"></script>
 		<script>
+			//$.fn.transition.FALLBACK = true;
+
 			$(document).ready(function () {
-				var red = $('div.red');
-				var blue = $('div.blue');
-
-				red.transition({
-					width: 400,
-					height: 85
-				}, {
-					duration: 1000,
-					complete: function () {
-						blue.transition({
-							width: 150,
-							height: 200,
-							background: 'yellow'
-						}, {
-							delay: 1200
-						});
+				var spinner = $("#spinner");
+				var deg = 0;
+				var width = 100;
+				var height = 100;
+				var colors = ['red', 'yellow', 'green', 'blue'];
+				var borderRadius = 0;
+				var borderRadiusDirection = 1;
+				
+				function spinit() {
+					var old_deg = deg;
+					deg %= 360;
+					if (deg === old_deg) {
+						deg += 90;
 					}
-				}).transition({
-					width: 100,
-					height: 500,
-					background: 'green'
-				}).transition({
-					opacity: 0
-				}).transition({
-					opacity: .75
-				});
 
-				setTimeout(function () {
-					red.transition({
-						width: 100,
-						height: 100,
-						background: 'red',
-						opacity: 1
-					}, { duration: 1000 });
+					var loop = 0;
+					do {
+						var old_borderRadius = borderRadius;
+						if (borderRadiusDirection === 1) {
+							borderRadius += 10;
+						} else {
+							borderRadius -= 10;
+						}
+						if (borderRadius > width / 2 || borderRadius < 0) {
+							borderRadiusDirection = -borderRadiusDirection;
+							loop += 2;
+						} else {
+							loop -= 1;
+						}
+					} while (loop >= 0);
 
-					blue.transition({
-						width: 100,
-						height: 200,
-						background: 'blue'
-					}, { duration: 400 });
-				}, 5000);
+					var color = colors.shift();
+					colors.push(color);
+					spinner.transition({
+						'-webkit-transform': 'rotate(' + deg + 'deg)',
+						width: deg % 180 ? height : width,
+						height: deg % 180 ? width : height,
+						backgroundColor: color,
+						borderRadius: borderRadius
+					}, {
+						complete: spinit,
+						easing: 'linear',
+						duration: (old_deg >= 360) ? 0 : 600
+					});
+				}
+				spinit();
 			});
 		</script>
 	</head>
 
 	<body>
-		<div class='red'></div>
-		<div class='blue'></div>
+		<div id='spinner'></div>
 	</body>
 </html>

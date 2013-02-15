@@ -14,7 +14,7 @@
 		return keys;
 	};
 
-	var transition_prefixes = ['', '-webkit-', '-moz-', '-ms-', '-o-'];
+	var transition_prefixes = ['', '-webkit-', '-moz-', '-ms-', '-o-', '-khtml-'];
 
 	$.fn.css_transition = function (name, set_val) {
 		var set;
@@ -88,9 +88,7 @@
 		return Math.round(n);
 	};
 
-	var transitionEndEvent = 'webkitTransitionEnd transitionEnd';
 	var transitionTimeout = 1000;
-
 	$.fn.transition = function (properties, options) {
 		var el = this;
 		
@@ -101,7 +99,7 @@
 		
 		// Fallback to jQuery animation if Mozernizr says so.
 		var noCssTransitions;
-		if (typeof Modernizr !== "undefined" && !Modernizr.csstransitions) {
+		if ($.fn.transition.FALLBACK || (typeof Modernizr !== "undefined" && !Modernizr.csstransitions)) {
 			if (properties) {
 				if (!(options.easing in $.easing)) {
 					options.easing = options.fallbackEasing;
@@ -134,24 +132,19 @@
 						el.css(properties);
 					}
 
-					if (options.complete) {
-						el.one(transitionEndEvent, options.complete);
-					}
-
-					el.one(transitionEndEvent, function (event) {
-						if (event.type !== "transitionEnd") {
-							el.trigger("transitionEnd");
-						}
+					el.one('transitionEnd', function (event) {
 						el.css_transition(null, transition_data.old_transition);
 						delete transition_data.old_transition;
 						next();
 					});
 
-					if (!supportsWebkitTransitionEnd) {
-						setTimeout(function () {
-							el.trigger('transitionEnd');
-						}, noCssTransitions ? 0 : options.delay + options.duration);
+					if (options.complete) {
+						el.one('transitionEnd', options.complete);
 					}
+
+					setTimeout(function () {
+						el.trigger('transitionEnd');
+					}, noCssTransitions ? 0 : options.delay + options.duration);
 				}
 			});
 
