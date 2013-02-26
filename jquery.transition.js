@@ -1,4 +1,4 @@
-// From https://github.com/benekastah/css3-transitions
+// From https://github.com/benekastah/jquery.transitions
 
 (function ($, undefined) {
 	
